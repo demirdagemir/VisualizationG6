@@ -3,7 +3,7 @@
 
 In this repository we will build a visualization of the other teams aggregated data
 
-This project is a part of [JS Technology Lab](https://rostlab.org/owiki/index.php/Javascript_technology_2017) at Techincal University of Munich.
+This project is a part of [JS Technology Lab](https://rostlab.org/owiki/index.php/Javascript_technology_2017) at Technical University of Munich.
 
 ## Demo
 
