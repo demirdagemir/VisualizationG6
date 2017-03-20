@@ -1,0 +1,46 @@
+.searchbar {
+
+  form {
+    width: 68%;
+    margin-left: 10pt;
+    margin-right: 10pt;
+  }
+
+  input {
+    font: 45px 'League Gothic';
+    border-bottom: solid 1px #ccc !important;
+    background: url('./img/search-icon-white.svg');
+    background-position: right;
+    background-repeat: no-repeat;
+    border: none;
+    box-shadow: none !important;
+    height: 60px;
+    border-radius: 0px;
+    outline: none;
+    color: $flat-midnight-blue;
+  }
+
+  /*
+   * TODO: Integrate postcss/autoprefixer
+   */
+  ::-webkit-input-placeholder { /* Chrome */
+    color: $flat-gray-2;
+    opacity: 0.6;
+  }
+
+  :-ms-input-placeholder { /* IE 10+ */
+    color: $flat-gray-1;
+    opacity: 0.6;
+  }
+
+  ::-moz-placeholder { /* Firefox 19+ */
+    color: $flat-gray-1;
+    opacity: 0.6;
+  }
+
+  :-moz-placeholder { /* Firefox 4 - 18 */
+    color: $flat-gray-1;
+    opacity: 0.6;
+  }
+
+}
