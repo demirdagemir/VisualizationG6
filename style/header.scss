@@ -1,0 +1,106 @@
+@import 'text';
+
+$tumheaderheight: 60px;
+$navigationheight: 55px;
+
+.tum-header {
+
+  // This has to be according to TUM Corporate design
+  $x: $tumheaderheight / 3;
+  position: relative;
+  font-family: 'Arial', 'TUM Neue Helvetica', 'Sans Serif';
+  color: #FFFFFF;
+  background: $tum-color;
+  font-size: 12px;
+  margin: 0px;
+  padding: 0px 20px;
+
+  .tumtext {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+
+  img {
+    height: $x;
+  }
+}
+
+.tum-logo {
+  width: 40px;
+  height: 40px;
+}
+
+.navbar-default {
+  box-shadow: initial;
+}
+
+.navigation {
+  font-family: $default-head-font;
+
+  background: #FFFFFF;
+  border: none;
+  border-radius: 0px;
+  padding: 0px 20px;
+
+  box-shadow: 0 2px 5px 0 rgba(0,0,0,.16),0 2px 10px 0 rgba(0,0,0,.12);
+
+  h2 {
+    font-size: 16pt;
+    color: $tum-color !important;
+    margin-top: 10px !important;
+  }
+
+  .selected {
+    a {
+      background-color: $flat-clouds !important;
+    }
+  }
+
+  .navbar-form .form-control {
+    margin-right: 50px;
+  }
+}
+
+.nav-menu {
+  li {
+    font-size: 15pt;
+    height: $navigationheight;
+    a {
+      color: $tum-color !important;
+      height: $navigationheight;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      padding: 0 20px;
+      font-size:15px;
+      line-height:$navigationheight;
+      font-weight:700;
+      letter-spacing:0.01em;
+      text-transform:uppercase;
+      background:transparent;
+    }
+  }
+
+  a:hover:before {
+      bottom:8px;
+      opacity:1;
+  }
+
+  a:before {
+    display:block;
+    position:absolute;
+    bottom:0;
+    left:25%;
+    content:"";
+    width:50%;
+    height:3px;
+    background: $tum-color;
+    z-index:999;
+    opacity:0;
+    -webkit-transition:all 0.3s ease-out;
+    transition:all 0.3s ease-out;
+  }
+}

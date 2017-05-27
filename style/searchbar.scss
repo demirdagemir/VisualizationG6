@@ -1,17 +1,33 @@
 .searchbar {
 
   form {
-    width: 68%;
     margin-left: 10pt;
     margin-right: 10pt;
   }
 
+  .list-group-item {
+    color: $flat-asbestos;
+  }
+
+  .list-group {
+    position: absolute;
+    // min-width: 30%;
+    z-index: 999;
+  }
+
+  .autocomplete {
+    min-width: 20%;
+  }
+
   input {
-    font: 45px 'League Gothic';
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px !important;
     border-bottom: solid 1px #ccc !important;
     background: url('./img/search-icon-white.svg');
     background-position: right;
+    background-attachment: fixed;
     background-repeat: no-repeat;
+    background-size: 50px 30px;
     border: none;
     box-shadow: none !important;
     height: 60px;
@@ -20,27 +36,8 @@
     color: $flat-midnight-blue;
   }
 
-  /*
-   * TODO: Integrate postcss/autoprefixer
-   */
-  ::-webkit-input-placeholder { /* Chrome */
+  ::placeholder {
     color: $flat-gray-2;
     opacity: 0.6;
   }
-
-  :-ms-input-placeholder { /* IE 10+ */
-    color: $flat-gray-1;
-    opacity: 0.6;
-  }
-
-  ::-moz-placeholder { /* Firefox 19+ */
-    color: $flat-gray-1;
-    opacity: 0.6;
-  }
-
-  :-moz-placeholder { /* Firefox 4 - 18 */
-    color: $flat-gray-1;
-    opacity: 0.6;
-  }
-
 }

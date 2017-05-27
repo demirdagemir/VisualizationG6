@@ -1,35 +1,62 @@
-.searchResult {
-  background-color: $flat-clouds;
-  align-items: center;
-  min-height: 30pt;
-  margin-bottom: 2pt;
-  padding-bottom: 2pt;
-}
+@import 'text';
 
-.searchResult-icon {
-  font-size: 15pt;
-}
+.search {
 
-.searchMessage {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 40pt;
-}
-
-.search-error {
-  margin-top: 20px;
-  margin-left: 8px;
-}
-/* Table of search results in the search component */
-
-table {
-  color: $flat-midnight-blue;
-  thead {
-    font-family: 'League Gothic' !important;
-    font-size: 23px;
+  .searchResult {
+    background-color: $flat-clouds;
+    align-items: center;
+    min-height: 30pt;
+    margin-bottom: 2pt;
+    padding-bottom: 2pt;
   }
-  tr {
-    cursor: pointer;
+
+  .btn-default {
+    background-color: white !important;
+    color: $flat-midnight-blue !important;
+  }
+
+  .searchResult-icon {
+    width: 15pt;
+    span {
+      font-size: 15pt;
+    }
+  }
+
+  .searchMessage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40pt;
+  }
+
+  .search-error {
+    margin-top: 20px;
+    margin-left: 8px;
+  }
+  /* Table of search results in the search component */
+
+  table {
+    color: $flat-midnight-blue;
+    thead {
+      font-family: $default-head-font;
+      font-size: 23px;
+    }
+    tr {
+      cursor: pointer;
+    }
+  }
+
+  h2 {
+    font-family: $default-head-font;
+    color: $flat-midnight-blue;
+  }
+
+  .card-group {
+    display: flex;
+  }
+
+  .card {
+    padding: 5pt;
+    margin: 5pt;
   }
 }

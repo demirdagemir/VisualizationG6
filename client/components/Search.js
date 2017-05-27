@@ -1,146 +1,194 @@
 import React from 'react'
-import elasticSearchClient from '../services/ElasticSearch'
-import Searchbar from './Searchbar'
+import { connect } from 'react-redux'
+import MCMSearch from '../services/MCMSearch'
 import SearchResult from './SearchResult'
 import Spinner from 'react-spinkit'
+import RelationsDrawer from './RelationsDrawer'
+import Searchbar from './Searchbar'
+import '../../style/search.scss'
+import Pagination from './Pagination'
 const numberOfResults = 12
 
-export default class Search extends React.Component {
+function Loading () {
+  return (
+    <div className='parent-center'>
+      <Spinner spinnerName='double-bounce' />
+    </div>
+  )
+}
+
+function Error () {
+  return (
+    <div className='search-error'>An error has occured, please try again</div>
+  )
+}
+
+class Search extends React.Component {
 
   constructor () {
     super()
 
-    this.nextResults = this.nextResults.bind(this)
-    this.lastResults = this.lastResults.bind(this)
+    this.nextArtists = this.nextArtists.bind(this)
+    this.lastArtists = this.lastArtists.bind(this)
+    this.nextWorks = this.nextWorks.bind(this)
+    this.lastWorks = this.lastWorks.bind(this)
+    this.mcmapi = new MCMSearch()
 
     this.state = {
-      searchResult: [],
-      searchState: 'none',
+      artists: [],
+      works: [],
+      errorArtists: false,
+      errorWorks: false,
+      loadingArtists: true,
+      loadingWorks: true,
       oldSearch: '',
-      totalResults: 0,
-      from: 0
+      totalArtists: 0,
+      totalWorks: 0,
+      fromArtists: 0,
+      fromWorks: 0
     }
   }
 
   componentDidMount () {
-    this.queryDatabse(0)
+    this.queryArtists(0)
+    this.queryWorks(0)
   }
 
-  queryDatabse (from) {
-    this.setState({searchState: 'loading', oldSearch: this.props.searchTerm, from: from, totalResults: 0})
+  queryArtists (from) {
+    if (this.props.searchTerm.length > 0) {
+      this.state.oldSearch = this.props.searchTerm
+      this.state.loadingArtists = true
 
-    elasticSearchClient.search({
-      q: this.props.searchTerm,
-      from: from,
-      size: numberOfResults
-    }).then((response) => {
-      this.parseResult(response)
-    }).catch((error) => {
-      this.setState({searchState: 'error'})
-      console.trace(error.message)
-    })
-  }
-
-  parseResult (result) {
-    if (result.hits && result.hits.hits) {
-      if (result.hits.total > 0) {
-        this.setState({searchResult: result.hits.hits, searchState: 'done', totalResults: result.hits.total})
-      } else {
-        this.setState({searchState: 'nothing'})
-      }
-    } else {
-      this.setState({searchState: 'error'})
+      let me = this
+      this.mcmapi.searchEntities('artists', this.props.searchTerm, from, numberOfResults).then(function (response) {
+        me.setState({artists: response.items, totalArtists: response.total, fromArtists: from, loadingArtists: false, errorArtists: false})
+      }, function (error) {
+        me.setState({errorArtists: true, artists: [], totalArtists: 0, fromArtists: 0, loadingArtists: false})
+        console.trace(error.message)
+      })
     }
   }
 
-  nextResults (event) {
-    this.queryDatabse(this.state.from + numberOfResults)
+  queryWorks (from) {
+    if (this.props.searchTerm.length > 0) {
+      this.state.oldSearch = this.props.searchTerm
+      this.state.loadingWorks = true
+
+      let me = this
+      this.mcmapi.searchEntities('works', this.props.searchTerm, from, numberOfResults).then(function (response) {
+        me.setState({works: response.items, totalWorks: response.total, errorWorks: false, loadingWorks: false, fromWorks: from})
+      }, function (error) {
+        me.setState({errorWorks: true, works: [], totalWorks: 0, loadingWorks: false, fromWorks: 0})
+        console.trace(error.message)
+      })
+    }
   }
 
-  lastResults (event) {
-    this.queryDatabse(this.state.from - numberOfResults)
+  nextArtists (event) {
+    this.queryArtists(this.state.fromArtists + numberOfResults)
+  }
+
+  lastArtists (event) {
+    this.queryArtists(this.state.fromArtists - numberOfResults)
+  }
+
+  nextWorks (event) {
+    this.queryWorks(this.state.fromWorks + numberOfResults)
+  }
+
+  lastWorks (event) {
+    this.queryWorks(this.state.fromWorks - numberOfResults)
   }
 
   render () {
-    let tableBody, tableFooter
+    let body
+    let key = 0
 
-    if (this.state.oldSearch !== this.props.searchTerm) {
-      this.queryDatabse(0)
-    }
-
-    switch (this.state.searchState) {
-      case 'loading':
-        tableBody = (
-          <div className='parent-center'>
-            <Spinner spinnerName='double-bounce' />
+    if (this.props.searchTerm.length <= 0) {
+      body = (
+        <div>
+          <div className='searchMessage visible-xs visible-sm help-block'>Just start searching with typing your
+            favourite composer, music work or musician here!
           </div>
-        )
-        break
-      case 'error':
-        tableBody = (
-          <div className='search-error'>An error has occured, please try again</div>
-        )
-        break
-      case 'nothing':
-        tableBody = (
-          <div className='search-error'>Sorry, we could not find anything for: {this.props.searchTerm}</div>
-        )
-        break
-      case 'done':
-        var i = 0
-        tableBody = this.state.searchResult.map(data => (<SearchResult key={i++} myData={data} />))
-        tableFooter = (
-          <nav aria-label='Page navigation'>
-            <div className='btn-group btn-group-justified' role='group'>
-              <div className='btn-group' role='group'>
-                <button type='button' className='btn btn-default' aria-label='Last Results' onClick={this.lastResults} disabled={this.state.from <= 0}>
-                  <span className='glyphicon glyphicon-chevron-left' aria-hidden='true' /> {Math.max(this.state.from - numberOfResults + 1, 0)} - {Math.max(this.state.from, 0)}
-                </button>
-              </div>
-              <div className='btn-group' role='group'>
-                <button type='button' className='btn btn-default' aria-label='Next Results' onClick={this.nextResults} disabled={this.state.from + numberOfResults >= this.state.totalResults}>
-                  {Math.min(this.state.totalResults, this.state.from + numberOfResults + 1)} - {Math.min(this.state.totalResults, this.state.from + numberOfResults + numberOfResults)}
-                  <span className='glyphicon glyphicon-chevron-right' aria-hidden='true' />
-                </button>
-              </div>
-            </div>
-          </nav>
-        )
-        break
-      default:
+          <div className='searchMessage hidden-xs hidden-sm'>Just start searching with typing your favourite composer,
+            music work or musician on top right corner!
+          </div>
+        </div>
+      )
+    } else if (this.state.oldSearch !== this.props.searchTerm) {
+      this.queryArtists(0)
+      this.queryWorks(0)
+    } else if (this.state.totalArtists + this.state.totalWorks <= 0) {
+      body = (<div className='searchMessage'>Sorry, we could not find anything for: {this.props.searchTerm}</div>)
+    } else {
+      body = (
+        <div>
+          { this.state.artists.length > 0 || this.state.errorArtists ? (<h2>Artists</h2>) : null }
+          { this.state.errorArtists ? (<Error />) : null}
+          { this.state.loadingArtists ? <Loading /> : null }
+          { this.state.artists.length > 0 && !this.state.errorArtists ? (
+            <div>
+              <table className='table table-hover'>
+                <thead>
+                  <tr>
+                    <th className='hidden-xs'>Type</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {this.state.artists.map(data => (<SearchResult type='artists' key={key++} myData={data} />))}
+                </tbody>
+              </table>
+              <Pagination current={this.state.fromArtists} total={this.state.totalArtists} step={numberOfResults} next={this.nextArtists} last={this.lastArtists} />
+            </div>) : null
+          }
+
+          { this.state.works.length > 0 || this.state.errorWorks ? (<h2>Works</h2>) : null }
+          { this.state.errorWorks ? (<Error />) : null}
+          { this.state.loadingWorks ? <Loading /> : null }
+          { this.state.works.length && !this.state.errorWorks > 0 ? (
+            <div>
+              <table className='table table-hover'>
+                <thead>
+                  <tr>
+                    <th className='hidden-xs'>Type</th>
+                    <th>Title</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {this.state.works.map(data => (<SearchResult type='works' key={key++} myData={data} />))}
+                </tbody>
+              </table>
+              <Pagination current={this.state.fromWorks} total={this.state.totalWorks} step={numberOfResults} next={this.nextWorks} last={this.lastWorks} />
+            </div>) : null
+          }
+
+          <div className='text-right margin-bottom-10-px'>
+            <small>{this.state.totalWorks + this.state.totalArtists} Results</small>
+          </div>
+        </div>
+      )
     }
 
     return (
-      <div className='container'>
-
-        <div className={this.state.searchState === 'done' ? 'row margin-top-10-p' : 'row margin-top-20-p'}>
-          <Searchbar initSearchTerm={this.props.searchTerm} />
-        </div>
-
-        <div className='margin-top-5-p'>
-          <table className='table animated fadeIn'>
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Work Title</th>
-                <th>Composer</th>
-                <th>Style</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tableBody}
-            </tbody>
-          </table>
-          <div className='text-right margin-bottom-10-px'>
-            <small>{this.state.totalResults} Results</small>
+      <div>
+        <div className='container-fluid animated fadeIn search'>
+          <div className='visible-xs visible-sm'>
+            <Searchbar />
           </div>
-          {tableFooter}
-          <div className='margin-bottom-5-p' />
+          <RelationsDrawer searchTerm={this.props.searchTerm} />
+          {body}
         </div>
-
       </div>
     )
+  }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    searchTerm: state.searchTerm
   }
 }
 
@@ -149,3 +197,5 @@ Search.propTypes = {
   from: React.PropTypes.number,
   to: React.PropTypes.number
 }
+
+export default connect(mapStateToProps)(Search)

@@ -1,0 +1,27 @@
+sudo: required
+language: node_js
+node_js:
+  - "node"
+cache:
+  yarn: true
+git:
+  submodules: false
+services:
+  - docker
+before_install:
+  - git submodule update --recursive --init
+  - git submodule update --recursive --remote
+  - yarn global add webpack@v2.1.0-beta.25
+  - yarn global add standard@v8.4.0
+  - yarn
+  - cd VisualizationG5/react && yarn && cd ../..
+install:
+  - yarn build
+  - cd VisualizationG5/react && yarn run build && cd ../..
+  - docker build -t rostlabazure/webpageg6 .
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "develop" ]; then
+    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" ;
+    docker push rostlabazure/webpageg6 ;
+    curl -H "$DOCKER_TRIGGER_HEADER" --data "{}" "$DOCKER_TRIGGER_URL" ;
+    fi

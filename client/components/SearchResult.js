@@ -9,30 +9,36 @@ export default class SearchResult extends React.Component {
 
   clickHandler (event) {
     event.preventDefault()
-    console.log(this)
-    var myData = this.props.myData
-    this.context.router.transitionTo('/details/' + myData._type + '/' + myData._id)
+    let myData = this.props.myData
+    this.context.router.transitionTo('/details/' + this.props.type + '/' + myData.id)
   }
 
   render () {
-    var myData = this.props.myData
-    var type = myData._type
-    var dbEntry = myData._source
+    let myData = this.props.myData
+    let type = this.props.type
 
-    if (type === 'composition') {
-      var composer = dbEntry.Composer || 'Unknown'
-      var style = dbEntry['Piece Style'] || 'Unknown'
-      var title = dbEntry['Work Title'] || 'Unknown'
-      var date = dbEntry['Year/Date of Composition'] || 'Unknown'
+    if (type === 'artists') {
+      let name = myData.name || 'Unknown'
+      let date = myData.dateOfBirth || 'Unknown'
 
       return (
         <tr className='animated fadeIn' onClick={this.clickHandler}>
-          <th scope='row'>
-            <span className='glyphicon glyphicon-cd searchResult-icon' />
+          <th className='hidden-xs searchResult-icon' scope='row'>
+            <span className='glyphicon glyphicon-user' />
+          </th>
+          <td><strong>{name}</strong></td>
+          <td>{date}</td>
+        </tr>
+      )
+    } else if (type === 'works') {
+      let title = myData.title || 'Unknown'
+      let date = myData.compositionyear || 'Unknown'
+      return (
+        <tr className='animated fadeIn' onClick={this.clickHandler}>
+          <th className='hidden-xs searchResult-icon' scope='row'>
+            <span className='glyphicon glyphicon-cd' />
           </th>
           <td><strong>{title}</strong></td>
-          <td>{composer}</td>
-          <td>{style}</td>
           <td>{date}</td>
         </tr>
       )
@@ -44,7 +50,8 @@ export default class SearchResult extends React.Component {
 }
 
 SearchResult.propTypes = {
-  myData: React.PropTypes.object
+  myData: React.PropTypes.object,
+  type: React.PropTypes.string
 }
 
 SearchResult.contextTypes = {

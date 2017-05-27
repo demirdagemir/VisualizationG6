@@ -1,26 +1,38 @@
 const path = require('path')
+var webpack = require('webpack');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
-  template: './index.html',
+  template: './index_template.html',
   filename: 'index.html',
-  inject: 'body'
+  inject: 'body',
+  xhtml: true,
+  favicon: './style/img/logo/favicon-32x32.png'
+})
+
+const GitRevisionPlugin = require('git-revision-webpack-plugin');
+const GitRevisionPluginConfig = new GitRevisionPlugin({
+  lightweightTags: true
 })
 
 module.exports = {
   context: __dirname,
-  entry: './client/App.js',
+  entry: {
+    bundle: './client/App.js',
+    vendor: ['jquery', 'react', 'react-dom', 'react-router', 'react-redux']
+  },
   devtool: 'eval',
   output: {
     path: path.join(__dirname, '/public'),
-    filename: 'bundle.js'
+    filename: '[hash].[name].js',
+    publicPath: '/',
+    chunkFilename: '[id].[chunkhash].bundle.js'
   },
   devServer: {
-    publicPath: '/public/',
+    publicPath: '/',
     historyApiFallback: true
   },
   resolve: {
-    extensions: ['.js', '.json']
   },
   stats: {
     colors: true,
@@ -29,6 +41,10 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /\.html$/,
+        loader: 'html-loader'
+      },
       {
         enforce: 'pre',
         test: /\.js$/,
@@ -40,9 +56,17 @@ module.exports = {
         loader: 'json-loader'
       },
       {
+        test: /bootstrap.+\.(jsx|js)$/,
+        loader: 'imports-loader?jQuery=jquery,$=jquery,this=>window'
+      },
+      {
         include: path.resolve(__dirname, 'client'),
         test: /\.js$/,
-        loader: 'babel-loader'
+        loader: 'babel-loader',
+        options: {
+          presets: [['es2015', {modules: false}]],
+          plugins: ['syntax-dynamic-import']
+        }
       },
       {
         test: /\.css$/,
@@ -53,32 +77,44 @@ module.exports = {
             options: {
               url: true
             }
-          }
+          },
+          'postcss-loader'
         ]
       },
       {
         test: /\.(jpg|png|svg|jpeg)$/,
-        loader: 'url-loader'
+        loader: 'url-loader?name=img/[name].[ext]&publicPath=/public/'
       },
       {
         test: /\.scss$/,
         use: [
           {
-          loader: "style-loader"
+          loader: 'style-loader'
           },
           {
-          loader: "css-loader"
+          loader: 'css-loader'
           },
           {
-          loader: "sass-loader"
+          loader: 'postcss-loader'
+          },
+          {
+          loader: 'sass-loader'
           }
         ]
       },
       {
         test: /\.(eot|ttf|woff|woff2)$/,
-        loader: 'file-loader?name=[name].[ext]&publicPath=/public/fonts/'
+        loader: 'url-loader?name=fonts/[name].[ext]&publicPath=/public/'
+      },
+      {
+        test: /\.txt$/,
+        loader: 'raw-loader'
       }
     ]
   },
-  plugins: [HtmlWebpackPluginConfig]
+  plugins: [
+    new webpack.optimize.CommonsChunkPlugin('vendor'),
+    HtmlWebpackPluginConfig,
+    GitRevisionPluginConfig
+  ]
 }
